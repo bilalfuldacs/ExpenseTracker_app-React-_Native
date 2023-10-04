@@ -1,42 +1,49 @@
 import React, { useContext, useLayoutEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import IconButton from "../UI/IconButton";
-import { GlobalStyles } from "../constants/Style";
-import Button from "../UI/Button";
-import { ExpenseContext } from "../store/Expenses_context";
+import IconButton from "../components/UI/IconButton";
+import { GlobalStyles } from "../constants/styles";
+import Button from "../components/UI/Button";
+import { ExpensesContext } from '../store/expenses-context';
 function ManageExpenses({ route, navigation }) {
-  const expensesCtx = useContext(ExpenseContext);
-  const expenseId = route.params?.expenseId;
-  const isEditing = !!expenseId;
+  const expensesCtx = useContext(ExpensesContext);
+
+  const editedExpenseId = route.params?.expenseId;
+  const isEditing = !!editedExpenseId;
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: isEditing ? 'Edit Expense' : 'Add Expense',
+    });
+  }, [navigation, isEditing]);
+
+  function deleteExpenseHandler() {
+    expensesCtx.deleteExpense(editedExpenseId);
+    navigation.goBack();
+  }
+
   function cancelHandler() {
     navigation.goBack();
   }
-  function confirmlHandler() {
+
+  function confirmHandler() {
     if (isEditing) {
-      expensesCtx.updateExpense(expenseId,{
-        description: "paper",
-        amount: 20,
-        date: new Date("2022-12-2"),
-      });
+      expensesCtx.updateExpense(
+        editedExpenseId,
+        {
+          description: 'Test!!!!',
+          amount: 29.99,
+          date: new Date('2022-05-20'),
+        }
+      );
     } else {
       expensesCtx.addExpense({
-        description: "paper",
-        amount: 20,
-        date: new Date("2022-12-2"),
+        description: 'Test',
+        amount: 19.99,
+        date: new Date('2022-05-19'),
       });
     }
     navigation.goBack();
   }
-  function deletelHandler() {
-    navigation.goBack();
-    expensesCtx.deleteExpense(expenseId);
-  }
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      title: isEditing ? "Edit Expense" : "Add Expense",
-    });
-  }, [navigation, isEditing]);
 
   return (
     <View style={styles.container}>
@@ -44,8 +51,8 @@ function ManageExpenses({ route, navigation }) {
         <Button style={styles.button} mode="flat" onPress={cancelHandler}>
           Cancel
         </Button>
-        <Button style={styles.button} onPress={confirmlHandler}>
-          {isEditing ? "Update" : "Add"}
+        <Button style={styles.button} onPress={confirmHandler}>
+          {isEditing ? 'Update' : 'Add'}
         </Button>
       </View>
       {isEditing && (
@@ -54,7 +61,7 @@ function ManageExpenses({ route, navigation }) {
             icon="trash"
             color={GlobalStyles.colors.error500}
             size={36}
-            onPress={deletelHandler}
+            onPress={deleteExpenseHandler}
           />
         </View>
       )}
@@ -63,26 +70,27 @@ function ManageExpenses({ route, navigation }) {
 }
 
 export default ManageExpenses;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
     backgroundColor: GlobalStyles.colors.primary800,
   },
-  deleteContainer: {
-    paddingTop: 8,
-    marginTop: 16,
-    borderTopWidth: 2,
-    borderTopColor: GlobalStyles.colors.primary200,
-    alignItems: "center",
-  },
   buttons: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
     minWidth: 120,
     marginHorizontal: 8,
+  },
+  deleteContainer: {
+    marginTop: 16,
+    paddingTop: 8,
+    borderTopWidth: 2,
+    borderTopColor: GlobalStyles.colors.primary200,
+    alignItems: 'center',
   },
 });
